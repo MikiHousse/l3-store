@@ -94,6 +94,10 @@ img {
     width: 32px;
     height: 32px;
     margin-top: 4px;
+
+    &:disabled {
+      fill: #000;
+    }
   }
 }
 
@@ -124,7 +128,12 @@ img {
   position: relative;
 }
 
-.cartCounter {
+.favorite {
+  position: relative;
+}
+
+.cartCounter,
+.favoritesCounter {
   position: absolute;
   right: -21px;
   top: -10px;
