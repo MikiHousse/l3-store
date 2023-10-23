@@ -3,6 +3,7 @@
 body {
   --text-light-color: #9797af;
   --key-color: #cb11ab;
+  --text-dark-color: #000000;
   --key-color-dark: #a2097b;
   --plate-color: #f6f6fa;
   --border-radius: 20px;
@@ -82,6 +83,20 @@ img {
   min-height: 60vh;
   box-sizing: border-box;
   padding: 30px 0 72px;
+}
+
+.btn__add-favorites {
+  border: 0;
+  background: none;
+  padding: 0;
+  margin: 0;
+
+  svg {
+    width: 32px;
+    height: 32px;
+    margin-top: 4px;
+  }
+
 }
 
 .btnFav {

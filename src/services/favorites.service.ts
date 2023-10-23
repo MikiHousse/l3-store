@@ -37,14 +37,20 @@ class FavoritesService {
     const count = products.length >= 10 ? '9+' : products.length;
 
     document
+      .querySelectorAll('.js__favorite')
+      //@ts-ignore
+      .forEach(($el: HTMLElement) => {
+        if (!count) {
+          $el.classList.add('hide');
+        } else {
+          $el.classList.remove('hide');
+        }
+      });
+
+    document
       .querySelectorAll('.js__favorite-counter')
       //@ts-ignore
       .forEach(($el: HTMLElement) => ($el.innerText = String(count || '')));
-
-    document
-      .querySelectorAll('.js__favorite')
-      //@ts-ignore
-      .forEach(($el: HTMLElement) => $el.classList.add(count ? '' : 'hide'));
   }
 }
 

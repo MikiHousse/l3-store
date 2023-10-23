@@ -33,15 +33,11 @@ class ProductDetail extends Component {
     this.view.description.innerText = description;
     this.view.price.innerText = formatPrice(salePriceU);
     this.view.btnBuy.onclick = this._addToCart.bind(this);
-    this.view.btnFav.onclick = this._addToFavorite.bind(this);
+    this.view.btnFav.onclick = this._toggleFavorite.bind(this);
 
     const isInCart = await cartService.isInCart(this.product);
 
     if (isInCart) this._setInCart();
-
-    const isInFavorite = await favoritesService.isInFavorite(this.product);
-
-    if (isInFavorite) this._setInFavorite();
 
     fetch(`/api/getProductSecretKey?id=${id}`)
       .then((res) => res.json())
@@ -70,14 +66,43 @@ class ProductDetail extends Component {
     this._setInFavorite();
   }
 
+  async _getFavoriteProducts() {
+    const favoritProducts = await favoritesService.get();
+    return favoritProducts.some((product) => product.brandId === this.product?.brandId);
+  }
+
+  private async _toggleFavorite() {
+    if (!this.product) return;
+    this._setInFavorite();
+    const isCurentProductFavorite = await this._getFavoriteProducts();
+
+    if (isCurentProductFavorite) {
+      this._removeFromFavorite();
+    } else {
+      this._addToFavorite();
+    }
+  }
+
+  private _removeFromFavorite() {
+    if (!this.product) return;
+
+    favoritesService.removeProduct(this.product);
+    this._setInFavorite();
+  }
+
   private _setInCart() {
     this.view.btnBuy.innerText = '✓ В корзине';
     this.view.btnBuy.disabled = true;
   }
 
-  private _setInFavorite() {
-    // this.view.btnFav.innerText = 'ok';
-    this.view.btnFav.disabled = true;
+  private async _setInFavorite() {
+    const isCurentProductFavorite = await this._getFavoriteProducts();
+
+    if (isCurentProductFavorite) {
+      this.view.btnFavSvg.setAttribute('fill', 'var(--text-dark-color)');
+    } else {
+      this.view.btnFavSvg.setAttribute('fill', 'var(--key-color)');
+    }
   }
 }
 
