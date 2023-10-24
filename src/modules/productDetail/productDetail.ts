@@ -34,6 +34,7 @@ class ProductDetail extends Component {
     this.view.price.innerText = formatPrice(salePriceU);
     this.view.btnBuy.onclick = this._addToCart.bind(this);
     this.view.btnFav.onclick = this._toggleFavorite.bind(this);
+    this._setInFavorite();
 
     const isInCart = await cartService.isInCart(this.product);
 
@@ -52,6 +53,12 @@ class ProductDetail extends Component {
       });
   }
 
+  async _getFavoriteProducts() {
+    const favoritProducts = await favoritesService.get();
+    console.log(favoritProducts, this.product?.brandId);
+    return favoritProducts.some((product) => product.brandId === this.product?.brandId);
+  }
+
   private _addToCart() {
     if (!this.product) return;
 
@@ -63,17 +70,17 @@ class ProductDetail extends Component {
     if (!this.product) return;
 
     favoritesService.addProduct(this.product);
-    this._setInFavorite();
   }
 
-  async _getFavoriteProducts() {
-    const favoritProducts = await favoritesService.get();
-    return favoritProducts.some((product) => product.brandId === this.product?.brandId);
+  private _removeFromFavorite() {
+    if (!this.product) return;
+
+    favoritesService.removeProduct(this.product);
   }
 
   private async _toggleFavorite() {
     if (!this.product) return;
-    this._setInFavorite();
+
     const isCurentProductFavorite = await this._getFavoriteProducts();
 
     if (isCurentProductFavorite) {
@@ -81,12 +88,7 @@ class ProductDetail extends Component {
     } else {
       this._addToFavorite();
     }
-  }
 
-  private _removeFromFavorite() {
-    if (!this.product) return;
-
-    favoritesService.removeProduct(this.product);
     this._setInFavorite();
   }
 
@@ -96,12 +98,13 @@ class ProductDetail extends Component {
   }
 
   private async _setInFavorite() {
+    await this._getFavoriteProducts();
     const isCurentProductFavorite = await this._getFavoriteProducts();
 
     if (isCurentProductFavorite) {
-      this.view.btnFavSvg.setAttribute('fill', 'var(--text-dark-color)');
-    } else {
       this.view.btnFavSvg.setAttribute('fill', 'var(--key-color)');
+    } else {
+      this.view.btnFavSvg.setAttribute('fill', 'var(--text-dark-color)');
     }
   }
 }
