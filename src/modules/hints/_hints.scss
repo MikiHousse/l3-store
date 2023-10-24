@@ -1,0 +1,16 @@
+.hints {
+  &__link {
+    background-color: #f6f6fa;
+    border-radius: 3px;
+    padding: 2px 5px;
+    text-decoration: none;
+  }
+
+  &__label {
+    background: linear-gradient(93deg, #da15b8 4.93%, #8d06cc 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+}
