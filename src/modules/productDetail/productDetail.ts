@@ -19,13 +19,14 @@ class ProductDetail extends Component {
   async render() {
     const urlParams = new URLSearchParams(window.location.search);
     const productId = Number(urlParams.get('id'));
-
+    //@ts-ignore
+    let secret;
     const productResp = await fetch(`/api/getProduct?id=${productId}`);
     this.product = await productResp.json();
+    const product = this.product;
+    if (!product) return;
 
-    if (!this.product) return;
-
-    const { id, src, name, description, salePriceU } = this.product;
+    const { id, src, name, description, salePriceU, log } = product;
 
     this.view.photo.setAttribute('src', src);
     this.view.title.innerText = name;
@@ -33,25 +34,46 @@ class ProductDetail extends Component {
     this.view.price.innerText = formatPrice(salePriceU);
     this.view.btnBuy.onclick = this._addToCart.bind(this);
 
-    const isInCart = await cartService.isInCart(this.product);
-
+    const isInCart = await cartService.isInCart(product);
     if (isInCart) this._setInCart();
-
-    fetch(`/api/getProductSecretKey?id=${id}`)
-      .then((res) => res.json())
-      .then((secretKey) => {
-        this.view.secretKey.setAttribute('content', secretKey);
-      });
 
     fetch('/api/getPopularProducts')
       .then((res) => res.json())
       .then((products) => {
         this.more.update(products);
       });
+
+    fetch(`/api/getProductSecretKey?id=${id}`)
+      .then((res) => res.json())
+      .then((secretKey) => {
+        this.view.secretKey.setAttribute('content', secretKey);
+        secret = secretKey;
+
+        const eventType = log ? 'viewCard' : 'viewCardPromo';
+        fetch('/api/sendEvent', {
+          method: 'POST',
+          body: JSON.stringify({
+            type: eventType,
+            payload: {
+              ...product,
+              secretKey: secretKey
+            }
+          })
+        });
+      });
   }
 
   private _addToCart() {
     if (!this.product) return;
+    const products = this.product;
+
+    fetch('/api/sendEvent', {
+      method: 'POST',
+      body: JSON.stringify({
+        type: 'addToCard',
+        payload: products
+      })
+    });
 
     cartService.addProduct(this.product);
     this._setInCart();

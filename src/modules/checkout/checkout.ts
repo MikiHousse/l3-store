@@ -8,6 +8,10 @@ import { ProductData } from 'types';
 class Checkout extends Component {
   products!: ProductData[];
 
+  _getTotalPrice() {
+    return this.products.reduce((acc, product) => (acc += product.salePriceU), 0);
+  }
+
   async render() {
     this.products = await cartService.get();
 
@@ -22,7 +26,7 @@ class Checkout extends Component {
       productComp.attach(this.view.cart);
     });
 
-    const totalPrice = this.products.reduce((acc, product) => (acc += product.salePriceU), 0);
+    const totalPrice = this._getTotalPrice();
     this.view.price.innerText = formatPrice(totalPrice);
 
     this.view.btnOrder.onclick = this._makeOrder.bind(this);
@@ -30,6 +34,23 @@ class Checkout extends Component {
 
   private async _makeOrder() {
     await cartService.clear();
+
+    const totalPrice = this._getTotalPrice();
+    const productIds = this.products.map((product) => product.brandId);
+    const orderId = Math.pow(productIds[0], 2).toString(3);
+
+    fetch('/api/sendEvent', {
+      method: 'POST',
+      body: JSON.stringify({
+        type: 'purchase',
+        payload: {
+          orderId: orderId,
+          totalPrice: totalPrice,
+          productIds: productIds
+        }
+      })
+    });
+
     fetch('/api/makeOrder', {
       method: 'POST',
       body: JSON.stringify(this.products)

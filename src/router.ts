@@ -27,6 +27,16 @@ export default class Router {
 
     // @ts-ignore
     const component = ROUTES[window.location.pathname] || notFoundComp;
+    const currentUrl = window.location.href;
+    const eventType = 'route';
+
+    fetch('/api/sendEvent', {
+      method: 'POST',
+      body: JSON.stringify({
+        type: eventType,
+        payload: currentUrl
+      })
+    });
 
     component.attach(this.$appRoot);
     component.render();
